@@ -4,22 +4,28 @@ import com.company.dao.UserDao;
 import com.company.model.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.*;
+
 
 @Path("/user")
 public class UserApi {
 
     private Gson gson = new GsonBuilder().create();
-    private final String FILE_NAME = "C:" + File.separator + "save.txt";
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getUsers() {
-        return readFile();
+        return UserDao.getInstance().readFile();
     }
 
     @POST
@@ -29,7 +35,6 @@ public class UserApi {
                            @FormParam("age") int age) {
         User user = new User(firstName, secondName, age);
         UserDao.getInstance().addUser(user);
-        saveToFile();
     }
 
     @PUT
@@ -39,7 +44,6 @@ public class UserApi {
         try {
             User user = gson.fromJson(jsonUser, User.class);
             if (UserDao.getInstance().update(user)) {
-                saveToFile();
                 return Response.status(Response.Status.OK).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -55,7 +59,6 @@ public class UserApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeUser(@PathParam("secondName") String secondName) {
         if (UserDao.getInstance().remove(secondName)) {
-            saveToFile();
             String json = "{\"result\" : \"Removed user with second name: " + secondName + "\"}";
             return Response.status(Response.Status.OK).entity(json).build();
         } else {
@@ -64,21 +67,4 @@ public class UserApi {
         }
     }
 
-    private void saveToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
-            writer.write(gson.toJson(UserDao.getInstance().getUsers()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String readFile() {
-        StringBuilder gsonString = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            gsonString.append(reader.readLine());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return gsonString.toString();
-    }
 }

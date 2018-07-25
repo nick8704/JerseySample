@@ -5,8 +5,10 @@ import com.company.model.UserList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +46,7 @@ public class UserDao {
 
     public void addUser(User user) {
         users.add(user);
+        saveToFile();
     }
 
     public UserList getUsers() {
@@ -54,6 +57,7 @@ public class UserDao {
         for (User user: users) {
             if(user.getSecondName().equalsIgnoreCase(secondName)) {
                 users.remove(user);
+                saveToFile();
                 return true;
             }
         }
@@ -65,10 +69,29 @@ public class UserDao {
             if(user.getSecondName().equalsIgnoreCase(testUser.getSecondName())) {
                 user.setFirstName(testUser.getFirstName());
                 user.setAge(testUser.getAge());
+                saveToFile();
                 return true;
             }
         }
         return false;
+    }
+
+    private void saveToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+            writer.write(gson.toJson(getUsers()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String readFile() {
+        StringBuilder gsonString = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            gsonString.append(reader.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return gsonString.toString();
     }
 
 }
