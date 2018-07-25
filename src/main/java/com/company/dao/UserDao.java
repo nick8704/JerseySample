@@ -84,14 +84,4 @@ public class UserDao {
         }
     }
 
-    public String readFile() {
-        StringBuilder gsonString = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            gsonString.append(reader.readLine());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return gsonString.toString();
-    }
-
 }

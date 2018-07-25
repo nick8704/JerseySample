@@ -25,7 +25,7 @@ public class UserApi {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getUsers() {
-        return UserDao.getInstance().readFile();
+        return gson.toJson(UserDao.getInstance().getUsers());
     }
 
     @POST
