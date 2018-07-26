@@ -17,14 +17,15 @@ public class UserDao {
 
     private static UserDao instance;
     private static List<User> users = new ArrayList<>();
-    private static final String FILE_NAME = "C:" + File.separator + "save.txt";
+    private static final String FILE_NAME = "users.txt";
+    private static final String PATH_TO_FILE = System.getProperty("java.io.tmpdir");
     private static Gson gson = new GsonBuilder().create();
 
     static{
-        File file = new File(FILE_NAME);
+        File file = new File(PATH_TO_FILE + File.separator + FILE_NAME);
         if(file.exists()) {
             StringBuilder gsonString = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 gsonString.append(reader.readLine());
                 UserList userList = gson.fromJson(gsonString.toString(), UserList.class);
                 users = userList.getUsers();
@@ -77,7 +78,8 @@ public class UserDao {
     }
 
     private void saveToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+        File file = new File(PATH_TO_FILE + File.separator + FILE_NAME);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(gson.toJson(getUsers()));
         } catch (IOException e) {
             e.printStackTrace();
